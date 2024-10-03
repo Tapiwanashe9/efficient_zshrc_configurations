@@ -1,0 +1,172 @@
+# Path to oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME=""
+
+ ENABLE_CORRECTION="true"  # Auto-correct commands
+
+# can be customised e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
+# Caution: issues with multiline prompts in zsh < 5.7.1 (see #5765)
+ COMPLETION_WAITING_DOTS="true"
+
+# plugins: add wisely, too many plugins slow down shell startup.
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+
+source $ZSH/oh-my-zsh.sh
+
+# ========================== My config (Tapiwanashe9) ========================
+
+# Newline after each output
+precmd() { print "" }
+
+# load some modules
+autoload -U colors zsh/terminfo # Used in the colour alias below
+colors
+setopt prompt_subst
+
+# make some aliases for the colours: (could use normal escap.seq's too)
+for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
+  eval PR_$color='%{$fg[${(L)color}]%}'
+done
+eval PR_NO_COLOR="%{$terminfo[sgr0]%}"
+eval PR_BOLD="%{$terminfo[bold]%}"
+
+# Check the UID
+if [[ $UID -ge 1000 ]]; then # normal user
+  eval PR_USER='${PR_CYAN}%n${PR_NO_COLOR}'
+  eval PR_USER_OP='${PR_CYAN}%#${PR_CYAN}'
+  local PR_PROMPT='$PR_YELLOW➤ $PR_NO_COLOR'
+elif [[ $UID -eq 0 ]]; then # root
+  eval PR_USER='${PR_RED}%n${PR_NO_COLOR}'
+  eval PR_USER_OP='${PR_RED}%#${PR_NO_COLOR}'
+  local PR_PROMPT='$PR_RED➤ $PR_NO_COLOR'
+fi
+
+# Check if we are on SSH or not
+if [[ -n "$SSH_CLIENT"  ||  -n "$SSH2_CLIENT" ]]; then
+  eval PR_HOST='${PR_YELLOW}%M${PR_NO_COLOR}' #SSH
+else
+  eval PR_HOST='${PR_CYAN}%M${PR_NO_COLOR}' # no SSH
+fi
+
+local return_code="%(?..%{$PR_RED%}%? ↵%{$PR_NO_COLOR%})"
+local user_host='${PR_CYAN}${PR_USER}${PR_CYAN}@${PR_CYAN}${PR_HOST}'
+local current_dir='%{$PR_MAGENTA%}%2~%{$PR_NO_COLOR%}'
+
+# Customise Zsh Prompt
+PROMPT="╭─ %F{green}${user_host}%f [${current_dir}] ${rvm_ruby}${git_branch}
+╰─$PR_PROMPT "
+RPS1="${return_code}"
+
+# git status according to changes in repo
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$PR_YELLOW%}("
+ZSH_THEME_GIT_PROMPT_SUFFIX=") %{$PR_YELLOW%}"
+ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[red]%}●%{$fg[yellow]%}"
+ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[yellow]%}"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+
+# General Command Shortcuts
+
+# Update and upgrade system
+alias update='sudo apt-get update && sudo apt-get upgrade'
+
+# Clear terminal screen
+alias c='clear'
+
+# Long listing format with hidden files
+alias ll='ls -alF'
+
+# Go up one directory
+alias ..='cd ..'
+
+#See dirrectories and it's subdirectories
+alias dns='ls -R'
+
+# Go up two directories
+alias ...='cd ../..'
+
+# Go up three directories
+alias ....='cd ../../..'
+
+# File Management Shortcuts
+
+# Create a file and open in 'nano'
+alias tn='touch && nano'
+
+# Create a file and open in 'vim'
+alias tvm='touch && vim'
+
+# Move files with confirmation
+alias mv='mv -i'
+
+# Copy files with confirmation
+alias cp='cp -i'
+
+# Remove files with confirmation
+alias rm='rm -i'
+
+# File Creation and Editing Shortcuts
+
+# Create and open a file in 'vi'
+alias tv='touch'
+
+# Create a new bash script with a shebang at the top
+alias nsf='echo "#!/bin/bash" >'
+
+# Make a file executable
+alias mkx='chmod u+x'
+
+# Create a directory and move into it
+alias mkcd='mkdir -p'
+
+# Process Management Shortcuts
+
+# Force quit a frozen command
+alias quit='kill -9 $!'
+
+# System Information Shortcuts
+
+# Show memory information
+alias meminfo='free -h'
+
+# Show disk usage
+alias diskinfo='df -h'
+
+# Monitor CPU usage using htop or top
+alias topcpu='htop || top'
+
+# Networking Shortcuts
+
+# Show your system's IP address
+alias myip="hostname -I | awk '{print $1}'"
+
+# Test internet connection by pinging Google
+alias nettest='ping -c 4 google.com'
+
+# Git Shortcuts
+
+# Check the status of your Git repository
+alias gs='git status'
+
+# Add all changes and commit with a message
+alias gac='git add . && git commit -m'
+
+# Pull from the Git repository
+alias gp='git pull'
+
+# Push changes to the Git repository
+alias gpush='git push'
+
+# Create and switch to a new Git branch
+alias gcb='git checkout -b'
+
+# View a short Git log with one-line summaries
+alias glog='git log --oneline --graph --decorate'
+
+# Stash all changes
+alias gstash='git stash save "WIP"'
+
